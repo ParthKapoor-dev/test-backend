@@ -13,14 +13,14 @@ app.use(express.json());
 
 app.use("/", AppRouter);
 
-
 // for signup testing only
 app.delete("/delete", async (req, res) => {
   try {
     const email = req.body.email;
-    const user = await User.deleteOne({email})
-    console.log(user)
-    if (!user.acknowledged) throw Error("something fucked up");
+    const user = await User.deleteOne({ email });
+    console.log(user);
+    if (!user.acknowledged || !user.deltedCount)
+      throw Error("something fucked up");
 
     res.json({ message: `deleted user : ${email}` });
   } catch (error) {

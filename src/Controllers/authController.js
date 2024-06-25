@@ -4,14 +4,21 @@ const generateToken = require("../utils/generateJwt");
 const emailVerifcation = require("../utils/EmailVerification");
 
 async function UserLogin(req, res) {
-  const { email, password } = req.body;
+  const { isEmail, pk, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
-    if (!user) throw new Error("Unregistered Email , Try SignUp");
+    let user;
+
+    if (isEmail == true) user = await User.findOne({ email: pk });
+    else user = await User.findOne({ username: pk });
+
+    if (!user) throw new Error("Unregistered Email/Username , Try SignUp");
 
     const verify = await bcrypt.compare(password, user.password);
     if (!verify) throw new Error("Incorrect Password");
+
+    if (user.verificationToken !== 0)
+      throw new Error("Please Verify your account first before loggin In");
 
     const token = await generateToken({ userId: user._id }, "3d");
     if (!token.success) throw new Error(token.message);
@@ -24,15 +31,23 @@ async function UserLogin(req, res) {
 }
 
 async function UserSignup(req, res) {
-  const { name, email, password } = req.body;
+  const { username, email, password } = req.body;
   try {
-    const checkUser = await User.findOne({ email });
-    if (checkUser) throw Error("Account Already Exists, Try Login");
+    const checkUsername = await User.findOne({ username });
+    if (checkUsername)
+      throw Error("Username Already Exists, Try something different");
+
+    const checkEmail = await User.findOne({ email });
+    if (checkEmail) throw Error("Account Already Exists, Try Logging In");
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = await User.create({ name, email, password: hashedPassword });
+    const user = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+    });
     const token = await generateToken({ userId: user._id }, "3d");
 
     const { status, updatedUser } = await emailVerifcation(user);
