@@ -18,13 +18,10 @@ const transporter = nodemailer.createTransport({
 async function emailVerifcation(user) {
   try {
     const token = generateCode();
-    console.log(token);
 
     const updatedUser = await User.findOne({ email: user.email });
     updatedUser.verificationToken = token;
     await updatedUser.save();
-
-    console.log();
 
     const mailOptions = {
       from: process.env.GMAIL_EMAIL_ID,

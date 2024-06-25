@@ -13,8 +13,12 @@ const signupValidator = joi.object({
   password: joi.string()
 })
 
+const VerifyOtp = joi.object({
+  otp : joi.number()
+})
 
 module.exports = {
   loginValidator,
-  signupValidator
+  signupValidator,
+  VerifyOtp
 }

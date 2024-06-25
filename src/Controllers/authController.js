@@ -49,7 +49,27 @@ async function UserSignup(req, res) {
   }
 }
 
+async function OTPVerification(req, res) {
+  const otp = req.body.otp;
+  const _id = req.user.id;
+  try {
+    const user = await User.findOne({ _id });
+    const verify = user.verificationToken == otp;
+
+    if (!verify) {
+      throw new Error("Wrong OTP");
+    } else {
+      user.verificationToken = 0;
+      await user.save();
+      res.json({ success: true, user });
+    }
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+}
+
 module.exports = {
   UserLogin,
   UserSignup,
+  OTPVerification,
 };

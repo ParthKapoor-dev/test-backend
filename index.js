@@ -13,6 +13,8 @@ app.use(express.json());
 
 app.use("/", AppRouter);
 
+
+// for signup testing only
 app.delete("/delete", async (req, res) => {
   try {
     const email = req.body.email;
