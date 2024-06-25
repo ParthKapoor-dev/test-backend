@@ -1,7 +1,8 @@
 const nodemailer = require("nodemailer");
+const User = require("../Models/UserModel");
 
 function generateCode() {
-  const code = Math.floor(Math.random() * 1000);
+  const code = Math.floor(1000 + Math.random() * 9000);
   if (code == 0) return generateCode();
   return code;
 }
@@ -16,14 +17,20 @@ const transporter = nodemailer.createTransport({
 
 async function emailVerifcation(user) {
   try {
-    const code = generateCode();
-    console.log(code);
+    const token = generateCode();
+    console.log(token);
+
+    const updatedUser = await User.findOne({ email: user.email });
+    updatedUser.verificationToken = token;
+    await updatedUser.save();
+
+    console.log();
 
     const mailOptions = {
       from: process.env.GMAIL_EMAIL_ID,
       to: user.email,
       subject: "Backend Test Verification Code",
-      text: `Verification code is ${code}`,
+      text: `Verification token is ${token}`,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -33,6 +40,8 @@ async function emailVerifcation(user) {
         console.log("Email sent: " + info.response);
       }
     });
+
+    return { status: true, updatedUser };
   } catch (error) {
     console.log(error);
     throw new Error(error.message);
