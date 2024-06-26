@@ -1,6 +1,6 @@
 const joi = require("joi");
 
-const setupProfileValidator = joi.object({
+const ProfileValidator = joi.object({
   location : joi.string(),
   age : joi.number(),
   dob : joi.date(),
@@ -10,5 +10,5 @@ const setupProfileValidator = joi.object({
 
 
 module.exports = {
-  setupProfileValidator
+  ProfileValidator
 }

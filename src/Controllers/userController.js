@@ -7,7 +7,7 @@ async function setupProfile(req, res) {
     try {
         const updatedUser = await User.findOneAndUpdate({ _id }, {
             location, age, bio, dob, work
-        }, { new : true});
+        }, { new: true });
         console.log(updatedUser)
         if (updatedUser._id.toString() !== _id.toString())
             throw new Error("Some Error in setting up profile");
@@ -27,6 +27,51 @@ async function setupProfile(req, res) {
     }
 }
 
+async function getProfile(req, res) {
+
+    const user = req.user;
+
+    try {
+        res.json({
+            success: true,
+            data: { user }
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+
+async function updateProfile(req, res) {
+    const userId = req.user._id;
+    const updatedData = req.data.updatedData;
+    try {
+        const updatedUser = await User.findOneAndUpdate({ _id: userId }, {
+            ...updatedData
+        }, { new: true });
+
+        res.json({
+            success: true,
+            data: {
+                updatedUser
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
 module.exports = {
     setupProfile,
+    getProfile,
+    updateProfile
 };
