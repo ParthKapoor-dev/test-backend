@@ -1,6 +1,6 @@
 const User = require("../Models/UserModel");
 
-async function setupProfile(req, res) {
+async function setupProfile(req, res, next) {
 
     const { location, age, bio, dob, work } = req.body;
     const _id = req.user._id;
@@ -12,42 +12,26 @@ async function setupProfile(req, res) {
         if (updatedUser._id.toString() !== _id.toString())
             throw new Error("Some Error in setting up profile");
 
-        res.json({
-            success: true,
-            data: {
-                updatedUser
-            }
-        })
+        res.json({ updatedUser })
     } catch (error) {
-        console.log(error);
-        res.json({
-            success: false,
-            message: error.message
-        })
+        next(error)
     }
 }
 
-async function getProfile(req, res) {
+async function getProfile(req, res, next) {
 
     const user = req.user;
 
     try {
-        res.json({
-            success: true,
-            data: { user }
-        })
+        res.json({ user })
 
     } catch (error) {
-        console.log(error);
-        res.json({
-            success: false,
-            message: error.message
-        })
+        next(error)
     }
 }
 
 
-async function updateProfile(req, res) {
+async function updateProfile(req, res, next) {
     const userId = req.user._id;
     const updatedData = req.data.updatedData;
     try {
@@ -55,18 +39,9 @@ async function updateProfile(req, res) {
             ...updatedData
         }, { new: true });
 
-        res.json({
-            success: true,
-            data: {
-                updatedUser
-            }
-        })
+        res.json({ updatedUser })
     } catch (error) {
-        console.log(error);
-        res.json({
-            success: false,
-            message: error.message
-        })
+        next(error)
     }
 }
 

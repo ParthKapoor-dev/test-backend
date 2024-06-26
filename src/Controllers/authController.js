@@ -3,7 +3,8 @@ const bcrypt = require("bcrypt");
 const generateToken = require("../utils/generateJwt");
 const emailVerifcation = require("../utils/EmailVerification");
 
-async function UserLogin(req, res) {
+
+async function UserLogin(req, res, next) {
   const { isEmail, pk, password } = req.body;
 
   try {
@@ -23,14 +24,19 @@ async function UserLogin(req, res) {
     const token = await generateToken({ userId: user._id }, "3d");
     if (!token.success) throw new Error(token.message);
 
-    res.json({ success: true, data: { token: token.token, user } });
+    res.status(200).json({
+      token: token.token,
+      user
+    });
   } catch (err) {
     console.log(err);
-    res.json({ success: false, message: err.message });
+    next(err)
   }
 }
 
-async function UserSignup(req, res) {
+
+
+async function UserSignup(req, res, next) {
   const { username, email, password } = req.body;
   try {
     const checkUsername = await User.findOne({ username });
@@ -54,17 +60,17 @@ async function UserSignup(req, res) {
     if (!status || !updatedUser) {
       throw new Error("Unable to send verification code to " + email);
     }
-    res.json({
-      success: true,
-      data: { token: token.token, user: updatedUser },
+    res.status(200).json({
+      token: token.token,
+      user: updatedUser
     });
   } catch (err) {
     console.log(err);
-    res.json({ success: false, message: err.message });
+    next(err)
   }
 }
 
-async function OTPVerification(req, res) {
+async function OTPVerification(req, res, next) {
   const otp = req.body.otp;
   const _id = req.user.id;
   try {
@@ -76,10 +82,10 @@ async function OTPVerification(req, res) {
     } else {
       user.verificationToken = 0;
       await user.save();
-      res.json({ success: true, user });
+      res.status(200).json({ user });
     }
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    next(err)
   }
 }
 
