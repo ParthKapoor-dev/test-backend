@@ -19,7 +19,7 @@ app.delete("/delete", async (req, res) => {
     const email = req.body.email;
     const user = await User.deleteOne({ email });
     console.log(user);
-    if (!user.acknowledged || !user.deltedCount)
+    if (user.deletedCount == 0 )
       throw Error("something fucked up");
 
     res.json({ message: `deleted user : ${email}` });

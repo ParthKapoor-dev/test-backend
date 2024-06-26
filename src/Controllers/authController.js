@@ -6,6 +6,7 @@ const emailVerifcation = require("../utils/EmailVerification");
 
 async function UserLogin(req, res, next) {
   const { isEmail, pk, password } = req.body;
+  const role = req.userRole || 'default-user';
 
   try {
     let user;
@@ -14,6 +15,9 @@ async function UserLogin(req, res, next) {
     else user = await User.findOne({ username: pk });
 
     if (!user) throw new Error("Unregistered Email/Username , Try SignUp");
+
+    if(role == 'admin-user' && user.role !== 'admin-user')
+      throw new Error("Unauthorized Login : Denied Admin login to this account");
 
     const verify = await bcrypt.compare(password, user.password);
     if (!verify) throw new Error("Incorrect Password");
@@ -38,6 +42,7 @@ async function UserLogin(req, res, next) {
 
 async function UserSignup(req, res, next) {
   const { username, email, password } = req.body;
+  const role = req.userRole || 'default-user';
   try {
     const checkUsername = await User.findOne({ username });
     if (checkUsername)
@@ -50,9 +55,10 @@ async function UserSignup(req, res, next) {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = await User.create({
-      username,
+      username : username.toLowerCase(),
       email,
       password: hashedPassword,
+      role
     });
     const token = await generateToken({ userId: user._id }, "3d");
 
@@ -85,7 +91,7 @@ async function OTPVerification(req, res, next) {
       res.status(200).json({ user });
     }
   } catch (error) {
-    next(err)
+    next(error)
   }
 }
 

@@ -3,7 +3,8 @@ const User = require("../Models/UserModel");
 async function getUsers(req, res, next) {
 
     try {
-        const users = await User.find({ role: "user-role" }).populate('username');
+        const users = await User.find({ role : 'default-user' });
+        console.log(users);
 
         res.status(200).json({
             users
@@ -14,7 +15,7 @@ async function getUsers(req, res, next) {
 };
 
 async function getUserByUsername(req, res, next) {
-    const username = req.params.username;
+    const username = req.params.username.toLowerCase();
     try {
 
         const user = await User.findOne({ username });
@@ -30,10 +31,10 @@ async function getUserByUsername(req, res, next) {
 }
 
 async function deleteUserByUsername(req, res, next) {
-    const username = req.body.username;
+    const username = req.body.username.toLowerCase();
     try {
 
-        const user = await User.delete({ username });
+        const user = await User.findOneAndDelete({ username });
         if (!user)
             throw new Error("Invalid UserName");
 
