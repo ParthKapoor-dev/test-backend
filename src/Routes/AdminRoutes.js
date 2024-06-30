@@ -9,3 +9,5 @@ AdminRouter.get("/get-username/:username", getUserByUsername);
 AdminRouter.delete("/delete-username", validate(usernameValidator), deleteUserByUsername)
 
 module.exports = AdminRouter;
+
+// admin router
